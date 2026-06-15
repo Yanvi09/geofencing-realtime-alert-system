@@ -23,7 +23,6 @@ func RegisterRoutes(router *gin.Engine) {
 	)
 
 	router.POST("/alerts/configure", handlers.CreateAlert)
-
 	router.GET("/alerts", handlers.GetAlerts)
 
 	router.GET("/violations/history", handlers.GetViolations)

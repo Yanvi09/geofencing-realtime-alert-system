@@ -32,7 +32,81 @@ func CreateGeofence(c *gin.Context) {
 		return
 	}
 
-	coordsJSON, _ := json.Marshal(req.Coordinates)
+	if req.Name == "" {
+		c.JSON(400, gin.H{
+			"error": "name is required",
+		})
+		return
+	}
+
+	if len(req.Coordinates) < 4 {
+		c.JSON(400, gin.H{
+			"error": "minimum 4 coordinate points required",
+		})
+		return
+	}
+
+	validCategory := map[string]bool{
+		"delivery_zone":   true,
+		"restricted_zone": true,
+		"toll_zone":       true,
+		"customer_area":   true,
+	}
+
+	if !validCategory[req.Category] {
+		c.JSON(400, gin.H{
+			"error": "invalid category",
+		})
+		return
+	}
+
+	// validate coordinates
+	for _, point := range req.Coordinates {
+
+		if len(point) != 2 {
+			c.JSON(400, gin.H{
+				"error": "invalid coordinate format",
+			})
+			return
+		}
+
+		lat := point[0]
+		lng := point[1]
+
+		if lat < -90 || lat > 90 {
+			c.JSON(400, gin.H{
+				"error": "invalid latitude",
+			})
+			return
+		}
+
+		if lng < -180 || lng > 180 {
+			c.JSON(400, gin.H{
+				"error": "invalid longitude",
+			})
+			return
+		}
+	}
+
+	// polygon must be closed
+	first := req.Coordinates[0]
+	last := req.Coordinates[len(req.Coordinates)-1]
+
+	if first[0] != last[0] || first[1] != last[1] {
+		c.JSON(400, gin.H{
+			"error": "polygon must be closed (first and last coordinate must match)",
+		})
+		return
+	}
+
+	coordsJSON, err := json.Marshal(req.Coordinates)
+
+	if err != nil {
+		c.JSON(500, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
 
 	geofence := models.Geofence{
 		ID:          uuid.New().String(),
@@ -61,13 +135,20 @@ func GetGeofences(c *gin.Context) {
 
 	start := time.Now()
 
-	println("GET GEOFENCES HIT")
+	category := c.Query("category")
 
 	var geofences []models.Geofence
 
-	err := config.DB.Find(&geofences).Error
+	query := config.DB.Model(&models.Geofence{})
 
-	if err != nil {
+	if category != "" {
+		query = query.Where("category = ?", category)
+	}
+
+	if err := query.
+		Order("created_at desc").
+		Find(&geofences).Error; err != nil {
+
 		c.JSON(500, gin.H{
 			"error": err.Error(),
 		})

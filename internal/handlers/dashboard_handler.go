@@ -22,8 +22,10 @@ func GetDashboardStats(c *gin.Context) {
 	config.DB.Model(&models.Vehicle{}).Count(&vehicleCount)
 	config.DB.Model(&models.Geofence{}).Count(&geofenceCount)
 	config.DB.Model(&models.Violation{}).Count(&violationCount)
-	config.DB.Model(&models.Alert{}).Count(&alertCount)
-
+	config.DB.
+		Model(&models.Alert{}).
+		Where("status = ?", "triggered").
+		Count(&alertCount)
 	utils.SuccessResponse(c, start, gin.H{
 		"vehicles":   vehicleCount,
 		"geofences":  geofenceCount,

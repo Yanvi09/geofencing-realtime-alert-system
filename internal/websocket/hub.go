@@ -42,13 +42,23 @@ func HandleConnections(c *gin.Context) {
 
 func Broadcast(message interface{}) {
 
+	println("BROADCASTING ALERT")
+
 	for client := range Clients {
 
 		err := client.WriteJSON(message)
 
 		if err != nil {
+
+			println("CLIENT DISCONNECTED")
+
 			client.Close()
+
 			delete(Clients, client)
+
+			continue
 		}
+
+		println("ALERT SENT")
 	}
 }

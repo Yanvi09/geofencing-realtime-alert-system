@@ -33,6 +33,35 @@ func CreateVehicle(c *gin.Context) {
 		return
 	}
 
+	// Assessment Validation
+	if req.VehicleNumber == "" {
+		c.JSON(400, gin.H{
+			"error": "vehicle_number is required",
+		})
+		return
+	}
+
+	if req.DriverName == "" {
+		c.JSON(400, gin.H{
+			"error": "driver_name is required",
+		})
+		return
+	}
+
+	if req.VehicleType == "" {
+		c.JSON(400, gin.H{
+			"error": "vehicle_type is required",
+		})
+		return
+	}
+
+	if req.Phone == "" {
+		c.JSON(400, gin.H{
+			"error": "phone is required",
+		})
+		return
+	}
+
 	vehicle := models.Vehicle{
 		ID:            uuid.New().String(),
 		VehicleNumber: req.VehicleNumber,
@@ -64,7 +93,7 @@ func GetVehicles(c *gin.Context) {
 
 	var vehicles []models.Vehicle
 
-	config.DB.Find(&vehicles)
+	config.DB.Order("created_at desc").Find(&vehicles)
 
 	utils.SuccessResponse(c, start, gin.H{
 		"vehicles": vehicles,

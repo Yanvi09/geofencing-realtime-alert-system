@@ -37,15 +37,19 @@ func ConnectDB() {
 	if err != nil {
 		log.Fatal("Database connection failed")
 	}
-	db.AutoMigrate(
-		&models.Geofence{},
-		&models.Vehicle{},
-		&models.Location{},
-		&models.Violation{},
-		&models.Alert{},
-	)
 
 	DB = db
 
-	fmt.Println("Database Connected")
+	err = DB.AutoMigrate(
+		&models.Vehicle{},
+		&models.Geofence{},
+		&models.Location{},
+		&models.Alert{},
+		&models.Violation{},
+		&models.GeofenceState{},
+	)
+
+	if err != nil {
+		log.Fatal("Migration failed")
+	}
 }
