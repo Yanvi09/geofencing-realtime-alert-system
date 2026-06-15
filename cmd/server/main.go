@@ -3,6 +3,9 @@ package main
 import (
 	"geofencing-system/internal/config"
 	"geofencing-system/internal/routes"
+	"os"
+
+	"os"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -26,5 +29,11 @@ func main() {
 	// Register all routes
 	routes.RegisterRoutes(router)
 
-	router.Run(":8080")
+	port := os.Getenv("PORT")
+
+	if port == "" {
+		port = "8080"
+	}
+
+	router.Run(":" + port)
 }
