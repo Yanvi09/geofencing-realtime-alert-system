@@ -1,44 +1,109 @@
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 
-function Sidebar() {
+export default function Sidebar() {
   return (
     <div
       style={{
-        width: "250px",
-        height: "100vh",
-        background: "#1A1B2F",
-        color: "white",
-        padding: "20px",
-        position: "fixed",
-        left: 0,
-        top: 0,
+        width: "260px",
+        minHeight: "100vh",
+        background: "#11152F",
+        padding: "30px",
       }}
     >
-      <h2 style={{ color: "#FFCF95" }}>MapU</h2>
+      <h1
+        style={{
+          color: "#FFCF95",
+          marginBottom: "50px",
+        }}
+      >
+        MapU
+      </h1>
 
-      <div
+      <nav
         style={{
           display: "flex",
           flexDirection: "column",
-          gap: "18px",
-          marginTop: "40px",
+          gap: "15px",
         }}
       >
-        <Link to="/" style={linkStyle}>Dashboard</Link>
-        <Link to="/vehicles" style={linkStyle}>Vehicles</Link>
-        <Link to="/geofences" style={linkStyle}>Geofences</Link>
-        <Link to="/tracking" style={linkStyle}>Tracking</Link>
-        <Link to="/violations" style={linkStyle}>Violations</Link>
-        <Link to="/alerts" style={linkStyle}>Alerts</Link>
-      </div>
+        <NavLink
+          to="/"
+          style={({ isActive }) => ({
+            color: "white",
+            textDecoration: "none",
+            padding: "14px",
+            borderRadius: "12px",
+            background: isActive ? "#723EC3" : "transparent",
+          })}
+        >
+          Dashboard
+        </NavLink>
+
+        <NavLink
+          to="/vehicles"
+          style={({ isActive }) => ({
+            color: "white",
+            textDecoration: "none",
+            padding: "14px",
+            borderRadius: "12px",
+            background: isActive ? "#723EC3" : "transparent",
+          })}
+        >
+          Vehicles
+        </NavLink>
+
+        <NavLink
+          to="/geofences"
+          style={({ isActive }) => ({
+            color: "white",
+            textDecoration: "none",
+            padding: "14px",
+            borderRadius: "12px",
+            background: isActive ? "#723EC3" : "transparent",
+          })}
+        >
+          Geofences
+        </NavLink>
+
+        <NavLink
+          to="/tracking"
+          style={({ isActive }) => ({
+            color: "white",
+            textDecoration: "none",
+            padding: "14px",
+            borderRadius: "12px",
+            background: isActive ? "#723EC3" : "transparent",
+          })}
+        >
+          Tracking
+        </NavLink>
+
+        <NavLink
+          to="/violations"
+          style={({ isActive }) => ({
+            color: "white",
+            textDecoration: "none",
+            padding: "14px",
+            borderRadius: "12px",
+            background: isActive ? "#723EC3" : "transparent",
+          })}
+        >
+          Violations
+        </NavLink>
+
+        <NavLink
+          to="/alerts"
+          style={({ isActive }) => ({
+            color: "white",
+            textDecoration: "none",
+            padding: "14px",
+            borderRadius: "12px",
+            background: isActive ? "#723EC3" : "transparent",
+          })}
+        >
+          Alerts
+        </NavLink>
+      </nav>
     </div>
   );
 }
-
-const linkStyle = {
-  color: "white",
-  textDecoration: "none",
-  fontSize: "16px",
-};
-
-export default Sidebar;

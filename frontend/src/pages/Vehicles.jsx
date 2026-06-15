@@ -1,83 +1,201 @@
 import { useEffect, useState } from "react";
-import api from "../api/api";
-import MainLayout from "../layouts/MainLayout";
+import axios from "axios";
 
-function Vehicles() {
+import Sidebar from "../components/Sidebar";
+import Navbar from "../components/Navbar";
+
+export default function Vehicles() {
   const [vehicles, setVehicles] = useState([]);
 
-  useEffect(() => {
-    fetchVehicles();
-  }, []);
+  const [form, setForm] = useState({
+    vehicle_number: "",
+    driver_name: "",
+    vehicle_type: "",
+    phone: "",
+  });
 
-  const fetchVehicles = async () => {
+  const loadVehicles = async () => {
     try {
-      const res = await api.get("/vehicles");
+      const res = await axios.get("http://localhost:8080/vehicles");
+
       setVehicles(res.data.vehicles || []);
     } catch (err) {
-      console.error(err);
+      console.log(err);
+    }
+  };
+
+  useEffect(() => {
+    loadVehicles();
+  }, []);
+
+  const createVehicle = async (e) => {
+    e.preventDefault();
+
+    try {
+      await axios.post("http://localhost:8080/vehicles", form);
+
+      alert("Vehicle Created");
+
+      setForm({
+        vehicle_number: "",
+        driver_name: "",
+        vehicle_type: "",
+        phone: "",
+      });
+
+      loadVehicles();
+    } catch (err) {
+      console.log(err);
+      alert("Failed to create vehicle");
     }
   };
 
   return (
-    <MainLayout>
-      <h1
-        style={{
-          color: "white",
-          marginBottom: "25px",
-        }}
-      >
-        Vehicles
-      </h1>
+    <div
+      style={{
+        display: "flex",
+        background: "#050A30",
+        minHeight: "100vh",
+      }}
+    >
+      <Sidebar />
 
-      <div
-        style={{
-          background: "#FFF0D9",
-          borderRadius: "16px",
-          padding: "20px",
-        }}
-      >
-        <table
+      <div style={{ flex: 1 }}>
+        <Navbar />
+
+        <div
           style={{
-            width: "100%",
-            borderCollapse: "collapse",
+            padding: "40px",
           }}
         >
-          <thead>
-            <tr>
-              <th style={thStyle}>Vehicle Number</th>
-              <th style={thStyle}>Driver</th>
-              <th style={thStyle}>Type</th>
-              <th style={thStyle}>Phone</th>
-              <th style={thStyle}>Status</th>
-            </tr>
-          </thead>
+          <h1
+            style={{
+              color: "white",
+              marginBottom: "30px",
+            }}
+          >
+            Vehicle Management
+          </h1>
 
-          <tbody>
-            {vehicles.map((vehicle) => (
-              <tr key={vehicle.id}>
-                <td style={tdStyle}>{vehicle.vehicle_number}</td>
-                <td style={tdStyle}>{vehicle.driver_name}</td>
-                <td style={tdStyle}>{vehicle.vehicle_type}</td>
-                <td style={tdStyle}>{vehicle.phone}</td>
-                <td style={tdStyle}>{vehicle.status}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+          <form
+            onSubmit={createVehicle}
+            style={{
+              background: "#FFF0D9",
+              padding: "25px",
+              borderRadius: "16px",
+              marginBottom: "40px",
+            }}
+          >
+            <h2>Create Vehicle</h2>
+
+            <input
+              placeholder="Vehicle Number"
+              value={form.vehicle_number}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  vehicle_number: e.target.value,
+                })
+              }
+              style={inputStyle}
+            />
+
+            <input
+              placeholder="Driver Name"
+              value={form.driver_name}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  driver_name: e.target.value,
+                })
+              }
+              style={inputStyle}
+            />
+
+            <input
+              placeholder="Vehicle Type"
+              value={form.vehicle_type}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  vehicle_type: e.target.value,
+                })
+              }
+              style={inputStyle}
+            />
+
+            <input
+              placeholder="Phone"
+              value={form.phone}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  phone: e.target.value,
+                })
+              }
+              style={inputStyle}
+            />
+
+            <button
+              type="submit"
+              style={{
+                background: "#723EC3",
+                color: "white",
+                border: "none",
+                padding: "12px 25px",
+                borderRadius: "10px",
+                cursor: "pointer",
+              }}
+            >
+              Create Vehicle
+            </button>
+          </form>
+
+          <div
+            style={{
+              background: "#FFF0D9",
+              borderRadius: "16px",
+              padding: "20px",
+            }}
+          >
+            <h2>Registered Vehicles</h2>
+
+            <table
+              style={{
+                width: "100%",
+              }}
+            >
+              <thead>
+                <tr>
+                  <th>Vehicle</th>
+                  <th>Driver</th>
+                  <th>Type</th>
+                  <th>Phone</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {vehicles.map((vehicle) => (
+                  <tr key={vehicle.id}>
+                    <td>{vehicle.vehicle_number}</td>
+                    <td>{vehicle.driver_name}</td>
+                    <td>{vehicle.vehicle_type}</td>
+                    <td>{vehicle.phone}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
-    </MainLayout>
+    </div>
   );
 }
 
-const thStyle = {
-  textAlign: "left",
+const inputStyle = {
+  width: "100%",
   padding: "12px",
-  borderBottom: "2px solid #ddd",
+  marginBottom: "15px",
+  borderRadius: "8px",
+  border: "1px solid #ccc",
 };
-
-const tdStyle = {
-  padding: "12px",
-  borderBottom: "1px solid #ddd",
-};
-
-export default Vehicles;

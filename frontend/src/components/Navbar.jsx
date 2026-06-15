@@ -1,30 +1,57 @@
-function Navbar() {
+import { useEffect, useState } from "react";
+
+export default function Navbar() {
+  const [connected, setConnected] = useState(false);
+
+  useEffect(() => {
+    try {
+      const socket = new WebSocket("ws://localhost:8080/ws/alerts");
+
+      socket.onopen = () => {
+        setConnected(true);
+      };
+
+      socket.onclose = () => {
+        setConnected(false);
+      };
+
+      return () => socket.close();
+    } catch {
+      setConnected(false);
+    }
+  }, []);
+
   return (
     <div
       style={{
-        height: "70px",
-        background: "#1A1B2F",
-        color: "white",
+        background: "#151936",
+        padding: "25px 40px",
         display: "flex",
-        alignItems: "center",
         justifyContent: "space-between",
-        padding: "0 25px",
-        borderBottom: "1px solid #2d3155",
+        alignItems: "center",
+        borderBottom: "1px solid #2b315e",
       }}
     >
-      <h3>Geofencing Real-Time Alert System</h3>
+      <h2
+        style={{
+          color: "white",
+          margin: 0,
+        }}
+      >
+        Geofencing Real-Time Alert System
+      </h2>
 
       <div
         style={{
-          background: "#723EC3",
-          padding: "8px 16px",
-          borderRadius: "8px",
+          background: connected ? "#22c55e" : "#ef4444",
+          color: "white",
+          padding: "12px 24px",
+          borderRadius: "12px",
+          fontWeight: "bold",
         }}
       >
-        Live
+        {connected ? "🟢 Live" : "🔴 Offline"}
       </div>
     </div>
   );
 }
-
-export default Navbar;
