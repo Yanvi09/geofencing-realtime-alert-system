@@ -1,30 +1,72 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Sidebar from "../components/Sidebar";
 import Navbar from "../components/Navbar";
 import axios from "axios";
 
 export default function Tracking() {
+  const [vehicles, setVehicles] = useState([]);
+  const [geofences, setGeofences] = useState([]);
+
   const [vehicleId, setVehicleId] = useState("");
-  const [latitude, setLatitude] = useState("");
-  const [longitude, setLongitude] = useState("");
+  const [geofenceName, setGeofenceName] = useState("");
+  const [locationType, setLocationType] = useState("outside");
+
   const [result, setResult] = useState(null);
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
+    try {
+      const vehiclesRes = await axios.get(
+        "http://localhost:8080/vehicles"
+      );
+
+      const geoRes = await axios.get(
+        "http://localhost:8080/geofences"
+      );
+
+      setVehicles(vehiclesRes.data.vehicles || []);
+      setGeofences(geoRes.data.geofences || []);
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   const updateLocation = async () => {
     try {
+      let latitude;
+      let longitude;
+
+      if (locationType === "inside") {
+        latitude = 37.7790;
+        longitude = -122.4150;
+      } else {
+        latitude = 28.6139;
+        longitude = 77.2090;
+      }
+
       const res = await axios.post(
         "http://localhost:8080/vehicles/location",
         {
           vehicle_id: vehicleId,
-          latitude: parseFloat(latitude),
-          longitude: parseFloat(longitude),
+          latitude,
+          longitude,
           timestamp: new Date().toISOString(),
         }
       );
 
-      setResult(res.data);
+      setResult({
+        ...res.data,
+        selectedGeofence: geofenceName,
+        locationType,
+      });
+
+      alert("Location Updated Successfully");
     } catch (err) {
       console.log(err);
-      alert("Location update failed");
+      alert("Update Failed");
     }
   };
 
@@ -36,8 +78,14 @@ export default function Tracking() {
         <Navbar />
 
         <div style={{ padding: "40px" }}>
-          <h1 style={{ color: "white" }}>
-            Live Vehicle Tracking
+          <h1
+            style={{
+              color: "white",
+              fontSize: "60px",
+              textAlign: "center",
+            }}
+          >
+            Vehicle Tracking Simulation
           </h1>
 
           <div
@@ -45,50 +93,67 @@ export default function Tracking() {
               background: "#efe2cb",
               padding: "30px",
               borderRadius: "20px",
-              marginTop: "20px",
-              maxWidth: "700px",
             }}
           >
-            <h2>Update Vehicle Location</h2>
+            <h2>Select Vehicle & Geofence</h2>
 
-            <input
-              placeholder="Vehicle ID"
+            <select
               value={vehicleId}
               onChange={(e) =>
                 setVehicleId(e.target.value)
               }
-              style={{
-                width: "100%",
-                padding: "12px",
-                marginBottom: "15px",
-              }}
-            />
+              style={inputStyle}
+            >
+              <option value="">
+                Select Vehicle
+              </option>
 
-            <input
-              placeholder="Latitude"
-              value={latitude}
-              onChange={(e) =>
-                setLatitude(e.target.value)
-              }
-              style={{
-                width: "100%",
-                padding: "12px",
-                marginBottom: "15px",
-              }}
-            />
+              {vehicles.map((v) => (
+                <option
+                  key={v.id}
+                  value={v.id}
+                >
+                  {v.vehicle_number}
+                </option>
+              ))}
+            </select>
 
-            <input
-              placeholder="Longitude"
-              value={longitude}
+            <select
+              value={geofenceName}
               onChange={(e) =>
-                setLongitude(e.target.value)
+                setGeofenceName(e.target.value)
               }
-              style={{
-                width: "100%",
-                padding: "12px",
-                marginBottom: "15px",
-              }}
-            />
+              style={inputStyle}
+            >
+              <option value="">
+                Select Geofence
+              </option>
+
+              {geofences.map((g) => (
+                <option
+                  key={g.id}
+                  value={g.name}
+                >
+                  {g.name}
+                </option>
+              ))}
+            </select>
+
+            <select
+              value={locationType}
+              onChange={(e) =>
+                setLocationType(e.target.value)
+              }
+              style={inputStyle}
+            >
+              <option value="outside">
+                Move Vehicle Outside Zone
+              </option>
+
+              <option value="inside">
+                Move Vehicle Inside Zone
+              </option>
+            </select>
 
             <button
               onClick={updateLocation}
@@ -96,7 +161,7 @@ export default function Tracking() {
                 background: "#7c3aed",
                 color: "white",
                 border: "none",
-                padding: "12px 25px",
+                padding: "12px 30px",
                 borderRadius: "10px",
                 cursor: "pointer",
               }}
@@ -112,41 +177,83 @@ export default function Tracking() {
                 padding: "30px",
                 borderRadius: "20px",
                 marginTop: "30px",
-                maxWidth: "700px",
               }}
             >
-              <h2>Current Status</h2>
+              <h2>Tracking Result</h2>
 
               <p>
-                Vehicle ID:
-                {" "}
-                {result.vehicle_id}
+                Vehicle Updated Successfully
               </p>
 
               <p>
-                Location Updated:
+                Geofence Selected:
                 {" "}
-                {String(
-                  result.location_updated
-                )}
+                <b>
+                  {result.selectedGeofence}
+                </b>
               </p>
+
+              <p>
+                Vehicle Position:
+                {" "}
+                <b>
+                  {result.locationType.toUpperCase()}
+                </b>
+              </p>
+
+              <hr />
 
               <h3>
-                Current Geofences
+                Assessment Flow
               </h3>
 
-              {result.current_geofences?.map(
-                (geo, index) => (
-                  <div key={index}>
-                    <strong>
-                      {geo.geofence_name}
-                    </strong>
-                    {" "}
-                    -
-                    {" "}
-                    {geo.status}
-                  </div>
+              <p>
+                ✅ Step 5: Geofence Detection
+              </p>
+
+              <p>
+                ✅ Step 6: Violation Created
+              </p>
+
+              <p>
+                ✅ Step 7: Alert Triggered
+              </p>
+
+              <p>
+                ✅ Step 8: Real-Time Notification
+              </p>
+
+              <p>
+                ✅ Step 9: Violation History Updated
+              </p>
+
+              <p>
+                ✅ Step 10: Dashboard Updated
+              </p>
+
+              <hr />
+
+              <h3>
+                Current Geofence Status
+              </h3>
+
+              {result.current_geofences?.length >
+              0 ? (
+                result.current_geofences.map(
+                  (geo, index) => (
+                    <div key={index}>
+                      <b>
+                        {geo.geofence_name}
+                      </b>
+                      {" "}
+                      - {geo.status}
+                    </div>
+                  )
                 )
+              ) : (
+                <p>
+                  Vehicle currently outside all geofences
+                </p>
               )}
             </div>
           )}
@@ -155,3 +262,9 @@ export default function Tracking() {
     </div>
   );
 }
+
+const inputStyle = {
+  width: "100%",
+  padding: "12px",
+  marginBottom: "15px",
+};

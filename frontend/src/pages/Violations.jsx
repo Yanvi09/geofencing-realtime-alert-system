@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import api from "../api/api";
-import MainLayout from "../layouts/MainLayout";
+import axios from "axios";
+import Sidebar from "../components/Sidebar";
+import Navbar from "../components/Navbar";
 
-function Violations() {
+export default function Violations() {
   const [violations, setViolations] = useState([]);
 
   useEffect(() => {
@@ -11,48 +12,88 @@ function Violations() {
 
   const fetchViolations = async () => {
     try {
-      const res = await api.get("/violations/history");
-      setViolations(res.data.violations || []);
+      const res = await axios.get(
+        "http://localhost:8080/violations/history"
+      );
+
+      setViolations(
+        res.data.violations || []
+      );
     } catch (err) {
-      console.error(err);
+      console.log(err);
     }
   };
 
   return (
-    <MainLayout>
-      <h1 style={{ color: "white", marginBottom: "25px" }}>
-        Violations
-      </h1>
+    <div style={{ display: "flex" }}>
+      <Sidebar />
 
-      <div
-        style={{
-          background: "#FFF0D9",
-          borderRadius: "16px",
-          padding: "20px",
-        }}
-      >
-        <table style={{ width: "100%" }}>
-          <thead>
-            <tr>
-              <th>Vehicle</th>
-              <th>Geofence</th>
-              <th>Event</th>
-            </tr>
-          </thead>
+      <div style={{ flex: 1 }}>
+        <Navbar />
 
-          <tbody>
-            {violations.map((v) => (
-              <tr key={v.id}>
-                <td>{v.vehicle_number}</td>
-                <td>{v.geofence_name}</td>
-                <td>{v.event_type}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div style={{ padding: "40px" }}>
+          <h1
+            style={{
+              color: "white",
+              fontSize: "60px",
+              textAlign: "center",
+            }}
+          >
+            Violations
+          </h1>
+
+          <div
+            style={{
+              background: "#efe2cb",
+              borderRadius: "20px",
+              padding: "25px",
+            }}
+          >
+            <table
+              style={{
+                width: "100%",
+                textAlign: "center",
+              }}
+            >
+              <thead>
+                <tr>
+                  <th>Vehicle</th>
+                  <th>Geofence</th>
+                  <th>Event</th>
+                  <th>Latitude</th>
+                  <th>Longitude</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {violations.map((item) => (
+                  <tr key={item.id}>
+                    <td>
+                      {item.vehicle_number}
+                    </td>
+
+                    <td>
+                      {item.geofence_name}
+                    </td>
+
+                    <td>
+                      {item.event_type}
+                    </td>
+
+                    <td>
+                      {item.latitude}
+                    </td>
+
+                    <td>
+                      {item.longitude}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
-    </MainLayout>
+    </div>
   );
 }
-
-export default Violations;
