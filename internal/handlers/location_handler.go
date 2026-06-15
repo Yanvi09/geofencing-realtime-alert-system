@@ -7,6 +7,7 @@ import (
 	"geofencing-system/internal/config"
 	"geofencing-system/internal/models"
 	"geofencing-system/internal/utils"
+	"geofencing-system/internal/websocket"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -89,6 +90,13 @@ func UpdateVehicleLocation(c *gin.Context) {
 			}
 
 			config.DB.Create(&violation)
+			websocket.Broadcast(gin.H{
+				"vehicle":   vehicle.VehicleNumber,
+				"geofence":  geofence.Name,
+				"event":     "entry",
+				"latitude":  req.Latitude,
+				"longitude": req.Longitude,
+			})
 		}
 	}
 

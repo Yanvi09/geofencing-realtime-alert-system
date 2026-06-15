@@ -42,6 +42,7 @@ func ConnectDB() {
 		&models.Vehicle{},
 		&models.Location{},
 		&models.Violation{},
+		&models.Alert{},
 	)
 
 	DB = db

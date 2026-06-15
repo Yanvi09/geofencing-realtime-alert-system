@@ -2,6 +2,7 @@ package routes
 
 import (
 	"geofencing-system/internal/handlers"
+	"geofencing-system/internal/websocket"
 
 	"github.com/gin-gonic/gin"
 )
@@ -20,4 +21,12 @@ func RegisterRoutes(router *gin.Engine) {
 		"/vehicles/location/:vehicle_id",
 		handlers.GetVehicleLocation,
 	)
+
+	router.POST("/alerts/configure", handlers.CreateAlert)
+
+	router.GET("/alerts", handlers.GetAlerts)
+
+	router.GET("/violations/history", handlers.GetViolations)
+
+	router.GET("/ws/alerts", websocket.HandleConnections)
 }
