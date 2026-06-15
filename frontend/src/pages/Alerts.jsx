@@ -102,7 +102,7 @@ export default function Alerts() {
 
       const alertRes =
         await axios.get(
-          "http://localhost:8080/alerts"
+          "https://geofencing-realtime-alert-system.onrender.com/alerts"
         );
 
       setVehicles(
@@ -122,22 +122,28 @@ export default function Alerts() {
   };
 
   const createAlert = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    try {
-      await axios.post(
-        "http://localhost:8080/alerts/configure",
-        form
-      );
+  console.log("FORM DATA:", form);
 
-      alert("Alert Rule Created");
+  try {
+    const res = await axios.post(
+      "https://geofencing-realtime-alert-system.onrender.com/alerts/configure",
+      form
+    );
 
-      loadData();
-    } catch (err) {
-      console.log(err);
-      alert("Failed");
-    }
-  };
+    console.log("SUCCESS:", res.data);
+
+    alert("Alert Rule Created");
+
+    loadData();
+  } catch (err) {
+    console.log("ERROR RESPONSE:", err.response?.data);
+    console.log(err);
+
+    alert("Failed");
+  }
+};
 
   return (
     <div style={{ display: "flex" }}>
