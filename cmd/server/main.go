@@ -1,10 +1,14 @@
 package main
 
 import (
+	"geofencing-system/internal/config"
+
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
+
+	config.ConnectDB()
 
 	router := gin.Default()
 
