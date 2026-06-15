@@ -29,4 +29,6 @@ func RegisterRoutes(router *gin.Engine) {
 	router.GET("/violations/history", handlers.GetViolations)
 
 	router.GET("/ws/alerts", websocket.HandleConnections)
+
+	router.GET("/dashboard/stats", handlers.GetDashboardStats)
 }
