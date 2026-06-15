@@ -1,0 +1,30 @@
+:root {
+  --primary: #723EC3;
+  --accent: #FFCF95;
+  --background: #FFF0D9;
+  --text: #1F2937;
+  --white: #FFFFFF;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--background);
+  color: var(--text);
+  font-family: Inter, sans-serif;
+}
+
+.page {
+  padding: 24px;
+}
+
+.card {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0,0,0,.06);
+}
