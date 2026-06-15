@@ -5,8 +5,6 @@ import (
 	"geofencing-system/internal/routes"
 	"os"
 
-	"os"
-
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
