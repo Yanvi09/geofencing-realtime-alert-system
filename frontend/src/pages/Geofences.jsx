@@ -15,7 +15,7 @@ export default function Geofences() {
 
   const loadGeofences = async () => {
     try {
-      const res = await axios.get("http://localhost:8080/geofences");
+      const res = await axios.get( "https://geofencing-realtime-alert-system.onrender.com/geofences");
       setGeofences(res.data.geofences || []);
     } catch (err) {
       console.log(err);
@@ -41,7 +41,7 @@ export default function Geofences() {
     };
 
     try {
-      await axios.post("http://localhost:8080/geofences", payload);
+      await axios.post("https://geofencing-realtime-alert-system.onrender.com/geofences", payload);
 
       alert("Geofence Created");
 

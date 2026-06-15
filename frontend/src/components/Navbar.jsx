@@ -5,7 +5,7 @@ export default function Navbar() {
 
   useEffect(() => {
     try {
-      const socket = new WebSocket("ws://localhost:8080/ws/alerts");
+      const socket = new WebSocket("wss://geofencing-realtime-alert-system.onrender.com");
 
       socket.onopen = () => {
         setConnected(true);

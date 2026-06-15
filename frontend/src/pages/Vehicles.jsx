@@ -16,7 +16,7 @@ export default function Vehicles() {
 
   const loadVehicles = async () => {
     try {
-      const res = await axios.get("http://localhost:8080/vehicles");
+      const res = await axios.get( "https://geofencing-realtime-alert-system.onrender.com/vehicles");
 
       setVehicles(res.data.vehicles || []);
     } catch (err) {
@@ -32,7 +32,7 @@ export default function Vehicles() {
     e.preventDefault();
 
     try {
-      await axios.post("http://localhost:8080/vehicles", form);
+      await axios.post("https://geofencing-realtime-alert-system.onrender.com/vehicles", form);
 
       alert("Vehicle Created");
 

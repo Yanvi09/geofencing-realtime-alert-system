@@ -19,13 +19,13 @@ export default function Tracking() {
 
   const loadData = async () => {
     try {
-      const vehiclesRes = await axios.get(
-        "http://localhost:8080/vehicles"
-      );
+     const vehiclesRes = await axios.get(
+  "https://geofencing-realtime-alert-system.onrender.com/vehicles"
+);
 
       const geoRes = await axios.get(
-        "http://localhost:8080/geofences"
-      );
+  "https://geofencing-realtime-alert-system.onrender.com/geofences"
+);
 
       setVehicles(vehiclesRes.data.vehicles || []);
       setGeofences(geoRes.data.geofences || []);
@@ -48,7 +48,7 @@ export default function Tracking() {
       }
 
       const res = await axios.post(
-        "http://localhost:8080/vehicles/location",
+  "https://geofencing-realtime-alert-system.onrender.com/vehicles/location",
         {
           vehicle_id: vehicleId,
           latitude,

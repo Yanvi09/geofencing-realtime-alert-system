@@ -21,7 +21,7 @@ export default function Alerts() {
     loadData();
 
     const ws = new WebSocket(
-      "ws://localhost:8080/ws/alerts"
+      "wss://geofencing-realtime-alert-system.onrender.com/ws/alerts"
     );
 
     ws.onopen = () => {
@@ -92,12 +92,12 @@ export default function Alerts() {
     try {
       const vehicleRes =
         await axios.get(
-          "http://localhost:8080/vehicles"
+          "https://geofencing-realtime-alert-system.onrender.com/vehicles"
         );
 
       const geoRes =
         await axios.get(
-          "http://localhost:8080/geofences"
+          "https://geofencing-realtime-alert-system.onrender.com/geofences"
         );
 
       const alertRes =

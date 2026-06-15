@@ -13,7 +13,7 @@ export default function Violations() {
   const fetchViolations = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:8080/violations/history"
+        "https://geofencing-realtime-alert-system.onrender.com/violations/history"
       );
 
       setViolations(
