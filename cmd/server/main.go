@@ -2,6 +2,7 @@ package main
 
 import (
 	"geofencing-system/internal/config"
+	"geofencing-system/internal/routes"
 
 	"github.com/gin-gonic/gin"
 )
@@ -17,6 +18,9 @@ func main() {
 			"message": "Geofencing API Running",
 		})
 	})
+
+	// Register all routes BEFORE Run()
+	routes.RegisterRoutes(router)
 
 	router.Run(":8080")
 }
