@@ -81,11 +81,12 @@ export default function Tracking() {
           <h1
             style={{
               color: "white",
-              fontSize: "60px",
+              fontSize: "50px",
               textAlign: "center",
+              marginBottom: "30px",
             }}
           >
-            Vehicle Tracking Simulation
+            Vehicle Tracking & Geofence Monitoring
           </h1>
 
           <div
@@ -95,7 +96,7 @@ export default function Tracking() {
               borderRadius: "20px",
             }}
           >
-            <h2>Select Vehicle & Geofence</h2>
+            <h2>Update Vehicle Location</h2>
 
             <select
               value={vehicleId}
@@ -182,69 +183,45 @@ export default function Tracking() {
               <h2>Tracking Result</h2>
 
               <p>
-                Vehicle Updated Successfully
+                <strong>Status:</strong> Vehicle location updated successfully
               </p>
 
               <p>
-                Geofence Selected:
-                {" "}
-                <b>
-                  {result.selectedGeofence}
-                </b>
+                <strong>Selected Geofence:</strong>{" "}
+                {result.selectedGeofence}
               </p>
 
               <p>
-                Vehicle Position:
-                {" "}
-                <b>
-                  {result.locationType.toUpperCase()}
-                </b>
+                <strong>Vehicle Position:</strong>{" "}
+                {result.locationType === "inside"
+                  ? "Inside Geofence"
+                  : "Outside Geofence"}
+              </p>
+
+              <p>
+                <strong>Last Update:</strong>{" "}
+                {new Date().toLocaleString()}
               </p>
 
               <hr />
 
-              <h3>
-                Assessment Flow
-              </h3>
+              <h3>Current Geofence Status</h3>
 
-              <p>
-                ✅ Step 5: Geofence Detection
-              </p>
-
-              <p>
-                ✅ Step 6: Violation Created
-              </p>
-
-              <p>
-                ✅ Step 7: Alert Triggered
-              </p>
-
-              <p>
-                ✅ Step 8: Real-Time Notification
-              </p>
-
-              <p>
-                ✅ Step 9: Violation History Updated
-              </p>
-
-              <p>
-                ✅ Step 10: Dashboard Updated
-              </p>
-
-              <hr />
-
-              <h3>
-                Current Geofence Status
-              </h3>
-
-              {result.current_geofences?.length >
-              0 ? (
+              {result.current_geofences?.length > 0 ? (
                 result.current_geofences.map(
                   (geo, index) => (
-                    <div key={index}>
-                      <b>
+                    <div
+                      key={index}
+                      style={{
+                        padding: "10px",
+                        marginBottom: "10px",
+                        background: "#ffffff",
+                        borderRadius: "10px",
+                      }}
+                    >
+                      <strong>
                         {geo.geofence_name}
-                      </b>
+                      </strong>
                       {" "}
                       - {geo.status}
                     </div>
@@ -252,7 +229,8 @@ export default function Tracking() {
                 )
               ) : (
                 <p>
-                  Vehicle currently outside all geofences
+                  Vehicle currently outside all
+                  geofences
                 </p>
               )}
             </div>

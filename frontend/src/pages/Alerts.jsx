@@ -8,6 +8,9 @@ export default function Alerts() {
   const [geofences, setGeofences] = useState([]);
   const [alerts, setAlerts] = useState([]);
 
+  const [socketStatus, setSocketStatus] =
+    useState("Disconnected");
+
   const [form, setForm] = useState({
     vehicle_id: "",
     geofence_id: "",
@@ -16,24 +19,106 @@ export default function Alerts() {
 
   useEffect(() => {
     loadData();
+
+    const ws = new WebSocket(
+      "ws://localhost:8080/ws/alerts"
+    );
+
+    ws.onopen = () => {
+      console.log("WebSocket Connected");
+      setSocketStatus("Connected");
+    };
+
+    ws.onclose = () => {
+      console.log("WebSocket Disconnected");
+      setSocketStatus("Disconnected");
+    };
+
+    ws.onerror = (error) => {
+      console.log(error);
+      setSocketStatus("Error");
+    };
+
+    ws.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+
+        setAlerts((prev) => [
+          {
+            id:
+              data.event_id ||
+              Date.now().toString(),
+
+            event_type:
+              data.event_type ||
+              data.event,
+
+            vehicle_number:
+              data.vehicle?.vehicle_number ||
+              data.vehicle,
+
+            geofence_name:
+              data.geofence?.geofence_name ||
+              data.geofence,
+
+            timestamp:
+              data.timestamp ||
+              new Date().toISOString(),
+          },
+
+          ...prev,
+        ]);
+
+        alert(
+          `🚨 ${data.event_type?.toUpperCase()} ALERT\n\nVehicle: ${
+            data.vehicle?.vehicle_number ||
+            "Unknown"
+          }\nGeofence: ${
+            data.geofence?.geofence_name ||
+            "Unknown"
+          }`
+        );
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    return () => {
+      ws.close();
+    };
   }, []);
 
   const loadData = async () => {
-    const vehicleRes = await axios.get(
-      "http://localhost:8080/vehicles"
-    );
+    try {
+      const vehicleRes =
+        await axios.get(
+          "http://localhost:8080/vehicles"
+        );
 
-    const geoRes = await axios.get(
-      "http://localhost:8080/geofences"
-    );
+      const geoRes =
+        await axios.get(
+          "http://localhost:8080/geofences"
+        );
 
-    const alertRes = await axios.get(
-      "http://localhost:8080/alerts"
-    );
+      const alertRes =
+        await axios.get(
+          "http://localhost:8080/alerts"
+        );
 
-    setVehicles(vehicleRes.data.vehicles || []);
-    setGeofences(geoRes.data.geofences || []);
-    setAlerts(alertRes.data.alerts || []);
+      setVehicles(
+        vehicleRes.data.vehicles || []
+      );
+
+      setGeofences(
+        geoRes.data.geofences || []
+      );
+
+      setAlerts(
+        alertRes.data.alerts || []
+      );
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   const createAlert = async (e) => {
@@ -66,6 +151,25 @@ export default function Alerts() {
             Alert Management
           </h1>
 
+          <div
+            style={{
+              background:
+                socketStatus === "Connected"
+                  ? "#16a34a"
+                  : "#dc2626",
+
+              color: "white",
+              padding: "10px",
+              borderRadius: "10px",
+              marginBottom: "20px",
+              fontWeight: "bold",
+            }}
+          >
+            WebSocket Status:
+            {" "}
+            {socketStatus}
+          </div>
+
           <form
             onSubmit={createAlert}
             style={{
@@ -82,14 +186,20 @@ export default function Alerts() {
               onChange={(e) =>
                 setForm({
                   ...form,
-                  vehicle_id: e.target.value,
+                  vehicle_id:
+                    e.target.value,
                 })
               }
             >
-              <option>Select Vehicle</option>
+              <option value="">
+                All Vehicles
+              </option>
 
               {vehicles.map((v) => (
-                <option key={v.id} value={v.id}>
+                <option
+                  key={v.id}
+                  value={v.id}
+                >
                   {v.vehicle_number}
                 </option>
               ))}
@@ -100,14 +210,20 @@ export default function Alerts() {
               onChange={(e) =>
                 setForm({
                   ...form,
-                  geofence_id: e.target.value,
+                  geofence_id:
+                    e.target.value,
                 })
               }
             >
-              <option>Select Geofence</option>
+              <option value="">
+                Select Geofence
+              </option>
 
               {geofences.map((g) => (
-                <option key={g.id} value={g.id}>
+                <option
+                  key={g.id}
+                  value={g.id}
+                >
                   {g.name}
                 </option>
               ))}
@@ -118,7 +234,8 @@ export default function Alerts() {
               onChange={(e) =>
                 setForm({
                   ...form,
-                  event_type: e.target.value,
+                  event_type:
+                    e.target.value,
                 })
               }
             >
@@ -150,22 +267,61 @@ export default function Alerts() {
               borderRadius: "16px",
             }}
           >
-            <h2>Configured Alerts</h2>
+            <h2>
+              Live Alert Feed
+            </h2>
 
-            {alerts.map((alert) => (
-              <div
-                key={alert.id}
-                style={{
-                  padding: "10px",
-                  borderBottom:
-                    "1px solid #ddd",
-                }}
-              >
-                Event:
-                {" "}
-                {alert.event_type}
-              </div>
-            ))}
+            {alerts.length === 0 ? (
+              <p>
+                No alerts received yet
+              </p>
+            ) : (
+              alerts.map(
+                (alert, index) => (
+                  <div
+                    key={
+                      alert.id || index
+                    }
+                    style={{
+                      padding: "12px",
+                      marginBottom:
+                        "10px",
+
+                      borderRadius:
+                        "10px",
+
+                      background:
+                        "#f8f8f8",
+                    }}
+                  >
+                    <strong>
+                      {alert.event_type}
+                    </strong>
+
+                    <br />
+
+                    Vehicle:
+                    {" "}
+                    {alert.vehicle_number ||
+                      alert.vehicle_id}
+
+                    <br />
+
+                    Geofence:
+                    {" "}
+                    {alert.geofence_name}
+
+                    <br />
+
+                    <small>
+                      {
+                        alert.timestamp
+                      }
+                    </small>
+                  </div>
+                )
+              )
+            )}
           </div>
         </div>
       </div>
