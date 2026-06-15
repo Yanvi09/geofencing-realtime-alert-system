@@ -39,6 +39,7 @@ func ConnectDB() {
 	}
 	db.AutoMigrate(
 		&models.Geofence{},
+		&models.Vehicle{},
 	)
 
 	DB = db

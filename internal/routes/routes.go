@@ -9,6 +9,8 @@ import (
 func RegisterRoutes(router *gin.Engine) {
 
 	router.POST("/geofences", handlers.CreateGeofence)
-
 	router.GET("/geofences", handlers.GetGeofences)
+
+	router.POST("/vehicles", handlers.CreateVehicle)
+	router.GET("/vehicles", handlers.GetVehicles)
 }
