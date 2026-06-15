@@ -1,81 +1,198 @@
 import { useEffect, useState } from "react";
-import api from "../api/api";
-import MainLayout from "../layouts/MainLayout";
+import axios from "axios";
 
-function Geofences() {
+import Sidebar from "../components/Sidebar";
+import Navbar from "../components/Navbar";
+
+export default function Geofences() {
   const [geofences, setGeofences] = useState([]);
 
-  useEffect(() => {
-    fetchGeofences();
-  }, []);
+  const [form, setForm] = useState({
+    name: "",
+    description: "",
+    category: "delivery_zone",
+  });
 
-  const fetchGeofences = async () => {
+  const loadGeofences = async () => {
     try {
-      const res = await api.get("/geofences");
+      const res = await axios.get("http://localhost:8080/geofences");
       setGeofences(res.data.geofences || []);
     } catch (err) {
-      console.error(err);
+      console.log(err);
+    }
+  };
+
+  useEffect(() => {
+    loadGeofences();
+  }, []);
+
+  const createGeofence = async (e) => {
+    e.preventDefault();
+
+    const payload = {
+      ...form,
+      coordinates: [
+        [37.7749, -122.4194],
+        [37.7849, -122.4194],
+        [37.7849, -122.4094],
+        [37.7749, -122.4094],
+        [37.7749, -122.4194],
+      ],
+    };
+
+    try {
+      await axios.post("http://localhost:8080/geofences", payload);
+
+      alert("Geofence Created");
+
+      setForm({
+        name: "",
+        description: "",
+        category: "delivery_zone",
+      });
+
+      loadGeofences();
+    } catch (err) {
+      console.log(err);
+      alert("Failed to create geofence");
     }
   };
 
   return (
-    <MainLayout>
-      <h1
-        style={{
-          color: "white",
-          marginBottom: "25px",
-        }}
-      >
-        Geofences
-      </h1>
+    <div
+      style={{
+        display: "flex",
+        background: "#050A30",
+        minHeight: "100vh",
+      }}
+    >
+      <Sidebar />
 
-      <div
-        style={{
-          background: "#FFF0D9",
-          borderRadius: "16px",
-          padding: "20px",
-        }}
-      >
-        <table
-          style={{
-            width: "100%",
-            borderCollapse: "collapse",
-          }}
-        >
-          <thead>
-            <tr>
-              <th style={thStyle}>Name</th>
-              <th style={thStyle}>Description</th>
-              <th style={thStyle}>Category</th>
-              <th style={thStyle}>Status</th>
-            </tr>
-          </thead>
+      <div style={{ flex: 1 }}>
+        <Navbar />
 
-          <tbody>
-            {geofences.map((geofence) => (
-              <tr key={geofence.id}>
-                <td style={tdStyle}>{geofence.name}</td>
-                <td style={tdStyle}>{geofence.description}</td>
-                <td style={tdStyle}>{geofence.category}</td>
-                <td style={tdStyle}>{geofence.status}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div style={{ padding: "40px" }}>
+          <h1 style={{ color: "white" }}>
+            Geofence Management
+          </h1>
+
+          <form
+            onSubmit={createGeofence}
+            style={{
+              background: "#FFF0D9",
+              padding: "25px",
+              borderRadius: "16px",
+              marginTop: "20px",
+              marginBottom: "30px",
+            }}
+          >
+            <h2>Create Geofence</h2>
+
+            <input
+              placeholder="Geofence Name"
+              value={form.name}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  name: e.target.value,
+                })
+              }
+              style={inputStyle}
+            />
+
+            <input
+              placeholder="Description"
+              value={form.description}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  description: e.target.value,
+                })
+              }
+              style={inputStyle}
+            />
+
+            <select
+              value={form.category}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  category: e.target.value,
+                })
+              }
+              style={inputStyle}
+            >
+              <option value="delivery_zone">
+                Delivery Zone
+              </option>
+
+              <option value="restricted_zone">
+                Restricted Zone
+              </option>
+
+              <option value="toll_zone">
+                Toll Zone
+              </option>
+
+              <option value="customer_area">
+                Customer Area
+              </option>
+            </select>
+
+            <button
+              type="submit"
+              style={{
+                background: "#723EC3",
+                color: "white",
+                border: "none",
+                padding: "12px 24px",
+                borderRadius: "10px",
+                cursor: "pointer",
+              }}
+            >
+              Create Geofence
+            </button>
+          </form>
+
+          <div
+            style={{
+              background: "#FFF0D9",
+              padding: "20px",
+              borderRadius: "16px",
+            }}
+          >
+            <h2>Geofence List</h2>
+
+            <table style={{ width: "100%" }}>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Description</th>
+                  <th>Category</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {geofences.map((geo) => (
+                  <tr key={geo.id}>
+                    <td>{geo.name}</td>
+                    <td>{geo.description}</td>
+                    <td>{geo.category}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
-    </MainLayout>
+    </div>
   );
 }
 
-const thStyle = {
-  textAlign: "left",
+const inputStyle = {
+  width: "100%",
   padding: "12px",
-  borderBottom: "2px solid #ddd",
+  marginBottom: "15px",
+  borderRadius: "8px",
+  border: "1px solid #ccc",
 };
-
-const tdStyle = {
-  padding: "12px",
-  borderBottom: "1px solid #ddd",
-};
-
-export default Geofences;
